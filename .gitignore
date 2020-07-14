@@ -13,5 +13,8 @@ web-build/
 .DS_Store
 
 # macOS Folder Icon
-Icon[
-]
+# This breaks sometimes. If Icon tries to sneak its way 
+# back into the repo, delete the following lines and run
+# this command to add the proper characters to this file:
+#   printf "Icon[\r]" >> .gitignore
+Icon[]
