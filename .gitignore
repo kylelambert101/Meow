@@ -1,4 +1,4 @@
-node_modules/**/*
+mobile_app/node_modules/**/*
 .expo/*
 npm-debug.*
 *.jks
@@ -13,4 +13,5 @@ web-build/
 .DS_Store
 
 # macOS Folder Icon
-Icon[]
+Icon[
+]
