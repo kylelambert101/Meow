@@ -1,9 +1,9 @@
-from flask import Flask
-from flask_restful import reqparse, abort, Api, Resource
 import json
 import logging
-from utilities import getBulletList
+from flask import Flask
+from flask_restful import reqparse, abort, Api, Resource
 from os import path
+from utilities import getBulletList
 
 
 # Base Variables
@@ -32,12 +32,14 @@ logging.basicConfig(
 
 def loadData():
     if path.exists(DATA_FILE):
+        logging.info('File exists. Attempting to read. ')
         # If the file exists, get data from it
         with open(DATA_FILE) as f:
             return json.load(f)
     else:
+        logging.info('No file exists - creating a new one.')
         # If file doesn't exist, return an empty LitterData
-        return {'history': [], 'period': 3}
+        return {'cleanings': [], 'period': 3}
 
 
 def saveNewData(newData):
@@ -57,42 +59,34 @@ app = Flask(__name__)
 api = Api(app)
 
 parser = reqparse.RequestParser()
-parser.add_argument('history', location="json")
+parser.add_argument('cleaning_date', location="json")
 
-# API Classes
+# I'm not making a Cleaning class at the moment because
+# I don't see a reason to get a specific date or edit it
+# ...yet.
 
 
-# History
-# shows a list of litter cleaning dates and lets you POST to add new cleanings
-class History(Resource):
+class CleaningHistory(Resource):
     def get(self):
-        logging.info('History GET Request')
-        return data['history']
+        logging.info('CleaningHistory GET Request')
+        logging.info(data)
+        return data['cleanings']
 
-    # TODO
-    # right now my post just overwrites the whole history
-    # Probably better to accept a post of a date and add it
-    # to the history list.
     def post(self):
-        logging.info('History POST Request')
+        logging.info('CleaningHistory POST Request')
         args = parser.parse_args()
-        print(args)
-        print(args['history'])
         # Replace in-memory data history with the passed in value
-        newData = data
-        try:
-            newData['history'] = json.loads(args['history'])
-        except json.decoder.JSONDecodeError as e:
-            logging.error(e)
-        saveNewData(newData)
-        logging.info(f'Updated data history to \n{newData["history"]}')
-        return newData['history'], 201
+        newCleaning = args['cleaning_date']
+        data['cleanings'].append(newCleaning)
+        saveNewData(data)
+        logging.info(f'Added "{newCleaning}" to history.')
+        return newCleaning, 201
 
 
 ##
 # Actually setup the Api resource routing here
 ##
-api.add_resource(History, '/litter')
+api.add_resource(CleaningHistory, '/litter/cleanings')
 
 
 if __name__ == '__main__':

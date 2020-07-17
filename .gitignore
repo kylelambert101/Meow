@@ -18,3 +18,4 @@ api.log
 
 # macOS
 .DS_Store
+api/api.json
