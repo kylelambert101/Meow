@@ -20,26 +20,23 @@ logging.basicConfig(
     datefmt=DATE_FORMAT)
 
 
-# class LitterData:
-#     DEFAULT = {'history': [], 'period': 3}
-
-#     def __init__(self, jsonData):
-#         # List of previous litter cleaning  events
-#         self.history = jsonData['history']
-#         # Number of days expected between cleanings
-#         self.frequency = jsonData['period']
-
-
 def loadData():
     if path.exists(DATA_FILE):
         logging.info('File exists. Attempting to read. ')
         # If the file exists, get data from it
         with open(DATA_FILE) as f:
-            return json.load(f)
-    else:
-        logging.info('No file exists - creating a new one.')
-        # If file doesn't exist, return an empty LitterData
-        return {'cleanings': [], 'period': 3}
+            result = json.load(f)
+            expected_keys = ['cleanings', 'period']
+            found_keys = [k for k in expected_keys if k in result.keys()]
+            if not (len(found_keys) == len(expected_keys)):
+                logging.error(
+                    f'Data file was invalid.\nExpected keys: {expected_keys}\nFound keys: {found_keys}')
+                print('JSON data file was invalid. Aborting. ')
+                exit(1)
+            return result
+    logging.info('No file exists - creating a new one.')
+    # If file doesn't exist, return an empty LitterData
+    return {'cleanings': [], 'period': 3}
 
 
 def saveNewData(newData):
@@ -70,7 +67,7 @@ class CleaningHistory(Resource):
     def get(self):
         logging.info('CleaningHistory GET Request')
         logging.info(data)
-        return data['cleanings']
+        return {'cleanings': data['cleanings']}
 
     def post(self):
         logging.info('CleaningHistory POST Request')
@@ -80,7 +77,7 @@ class CleaningHistory(Resource):
         data['cleanings'].append(newCleaning)
         saveNewData(data)
         logging.info(f'Added "{newCleaning}" to history.')
-        return newCleaning, 201
+        return {'cleanings': data['cleanings']}, 201
 
 
 ##
