@@ -85,6 +85,8 @@ class CleaningHistory(Resource):
 ##
 api.add_resource(CleaningHistory, '/litter/cleanings')
 
-
+# I know, I know, this is bad. But it's just running on my LAN.
+# What could go wrong?
+# See Flask docs for production deploy if I get to that point.
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
